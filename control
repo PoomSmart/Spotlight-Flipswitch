@@ -1,0 +1,9 @@
+Package: org.thebigboss.spotlighttoggle
+Name: Spotlight Flipswitch
+Depends: mobilesubstrate, com.a3tweaks.flipswitch, firmware (>= 4.0)
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Toggle for enabling/disabling iOS Spotlight.
+Maintainer: PoomSmart
+Author: PoomSmart
+Section: Addons (Flipswitch)
