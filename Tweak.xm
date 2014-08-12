@@ -23,8 +23,8 @@ static BOOL noHookOffset = YES;
 - (void)setContentOffset:(CGPoint)offset
 {
 	Boolean keyExist;
-	Boolean enabled = !CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
-	if (keyExist && enabled && !noHookOffset) {
+	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	if (keyExist && disabled && !noHookOffset) {
 		if (offset.x <= self.frame.size.width) {
 			%orig(CGPointMake(self.frame.size.width, offset.y));
 			return;
@@ -40,8 +40,8 @@ static BOOL noHookOffset = YES;
 - (void)_showSearchKeyboardIfNecessary:(id)arg1
 {
 	Boolean keyExist;
-	Boolean enabled = !CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
-	if (keyExist && enabled)
+	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	if (keyExist && disabled)
 		return;
 	%orig;
 }
@@ -52,15 +52,50 @@ static BOOL noHookOffset = YES;
 
 %group iOS7
 
-%hook SBSearchScrollView
+/*%hook SBSearchScrollView
 
 - (BOOL)_canScrollY
 {
 	Boolean keyExist;
-	Boolean enabled = !CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (!keyExist)
 		return %orig;
-	return enabled;
+	return !disabled;
+}
+
+%end*/
+
+%hook SBSearchViewController
+
+- (void)searchGesture:(id)gesture changedPercentComplete:(float)percent
+{
+	Boolean keyExist;
+	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	if (keyExist && disabled)
+		return;
+	%orig;
+}
+
+- (void)searchGesture:(id)gesture completedShowing:(BOOL)show
+{
+	Boolean keyExist;
+	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	if (keyExist && disabled)
+		return;
+	%orig;
+}
+
+%end
+
+%hook SBSearchGesture
+
+- (void)scrollViewDidScroll:(id)arg1
+{
+	Boolean keyExist;
+	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	if (keyExist && disabled)
+		return;
+	%orig;
 }
 
 %end
