@@ -12,15 +12,15 @@
 	Boolean keyExist;
 	Boolean enabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (!keyExist)
-		return FSSwitchStateOn;
-	return enabled ? FSSwitchStateOn : FSSwitchStateOff;
+		return FSSwitchStateOff;
+	return enabled ? FSSwitchStateOff : FSSwitchStateOn;
 }
 
 - (void)applyState:(FSSwitchState)newState forSwitchIdentifier:(NSString *)switchIdentifier
 {
 	if (newState == FSSwitchStateIndeterminate)
 		return;
-	CFPreferencesSetAppValue((CFStringRef)kSpotlightToggleKey, newState == FSSwitchStateOn ? kCFBooleanTrue : kCFBooleanFalse, kSpringBoard);
+	CFPreferencesSetAppValue((CFStringRef)kSpotlightToggleKey, newState == FSSwitchStateOff ? kCFBooleanTrue : kCFBooleanFalse, kSpringBoard);
 	CFPreferencesAppSynchronize(kSpringBoard);
 }
 
