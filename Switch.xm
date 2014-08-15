@@ -116,7 +116,8 @@ static BOOL noHookOffset = YES;
 	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (!keyExist)
 		return;
-	[self sf_setScrollViewEnabled:!disabled];
+	if (![[%c(SBIconController) sharedInstance] isEditing])
+		[self sf_setScrollViewEnabled:!disabled];
 }
 
 %end
