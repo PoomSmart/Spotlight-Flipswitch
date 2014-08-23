@@ -1,8 +1,14 @@
 #import "FSSwitchDataSource.h"
 #import "FSSwitchPanel.h"
 
-#define kSpotlightToggleKey @"SBNoSpotlight"
+#define kSpotlightToggleKey CFSTR("SBNoSpotlight")
 #define kSpringBoard CFSTR("com.apple.springboard")
+
+@interface SBIconController : NSObject
++ (id)sharedInstance;
+- (BOOL)isShowingSearch;
+- (void)scrollToIconListAtIndex:(unsigned)index animate:(BOOL)animated;
+@end
 
 @interface SBIconScrollView : UIScrollView
 @end
@@ -30,7 +36,7 @@
 - (FSSwitchState)stateForSwitchIdentifier:(NSString *)switchIdentifier
 {
 	Boolean keyExist;
-	Boolean enabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	Boolean enabled = CFPreferencesGetAppBooleanValue(kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (!keyExist)
 		return FSSwitchStateOn;
 	return enabled ? FSSwitchStateOff : FSSwitchStateOn;
@@ -41,13 +47,18 @@
 	if (newState == FSSwitchStateIndeterminate)
 		return;
 	CFBooleanRef disabled = newState == FSSwitchStateOn ? kCFBooleanFalse : kCFBooleanTrue;
-	CFPreferencesSetAppValue((CFStringRef)kSpotlightToggleKey, disabled, kSpringBoard);
-	CFPreferencesAppSynchronize(kSpringBoard);
 	if (kCFCoreFoundationVersionNumber > 793.00) {
 		BOOL enabled = disabled == kCFBooleanTrue ? NO : YES;
 		[[%c(SBSearchViewController) sharedInstance] dismiss];
 		[[%c(SBSearchGesture) sharedInstance] sf_setScrollViewEnabled:enabled];
+	} else {
+		if (newState == FSSwitchStateOff) {
+			if ([[%c(SBIconController) sharedInstance] isShowingSearch])
+				[[%c(SBIconController) sharedInstance] scrollToIconListAtIndex:0 animate:YES];
+		}
 	}
+	CFPreferencesSetAppValue(kSpotlightToggleKey, disabled, kSpringBoard);
+	CFPreferencesAppSynchronize(kSpringBoard);
 }
 
 @end
@@ -72,7 +83,7 @@ static BOOL noHookOffset = YES;
 - (void)setContentOffset:(CGPoint)offset
 {
 	Boolean keyExist;
-	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	Boolean disabled = CFPreferencesGetAppBooleanValue(kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (keyExist && disabled && !noHookOffset) {
 		if (offset.x <= self.frame.size.width) {
 			%orig(CGPointMake(self.frame.size.width, offset.y));
@@ -89,7 +100,7 @@ static BOOL noHookOffset = YES;
 - (void)_showSearchKeyboardIfNecessary:(id)arg1
 {
 	Boolean keyExist;
-	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	Boolean disabled = CFPreferencesGetAppBooleanValue(kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (keyExist && disabled)
 		return;
 	%orig;
@@ -113,7 +124,7 @@ static BOOL noHookOffset = YES;
 {
 	%orig;
 	Boolean keyExist;
-	Boolean disabled = CFPreferencesGetAppBooleanValue((CFStringRef)kSpotlightToggleKey, kSpringBoard, &keyExist);
+	Boolean disabled = CFPreferencesGetAppBooleanValue(kSpotlightToggleKey, kSpringBoard, &keyExist);
 	if (!keyExist)
 		return;
 	if (![[%c(SBIconController) sharedInstance] isEditing])
