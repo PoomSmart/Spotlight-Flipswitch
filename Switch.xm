@@ -1,8 +1,8 @@
 #import "FSSwitchDataSource.h"
 #import "FSSwitchPanel.h"
 
-#define kSpotlightToggleKey CFSTR("SBNoSpotlight")
-#define kSpringBoard CFSTR("com.apple.springboard")
+CFStringRef const kSpotlightToggleKey = CFSTR("SBNoSpotlight");
+CFStringRef const kSpringBoard = CFSTR("com.apple.springboard");
 
 @interface SBIconController : NSObject
 + (id)sharedInstance;
@@ -47,8 +47,8 @@
 	if (newState == FSSwitchStateIndeterminate)
 		return;
 	CFBooleanRef disabled = newState == FSSwitchStateOn ? kCFBooleanFalse : kCFBooleanTrue;
-	if (kCFCoreFoundationVersionNumber > 793.00) {
-		BOOL enabled = disabled == kCFBooleanTrue ? NO : YES;
+	if (isiOS7Up) {
+		BOOL enabled = disabled != kCFBooleanTrue;
 		[[%c(SBSearchViewController) sharedInstance] dismiss];
 		[[%c(SBSearchGesture) sharedInstance] sf_setScrollViewEnabled:enabled];
 	} else {
@@ -137,7 +137,7 @@ static BOOL noHookOffset = YES;
 
 %ctor
 {
-	if (kCFCoreFoundationVersionNumber > 793.00) {
+	if (isiOS7Up) {
 		%init(iOS7);
 	}
 	else {
