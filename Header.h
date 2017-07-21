@@ -1,7 +1,7 @@
-#import "../PS.h"
+#import "../../PS.h"
 
 @interface SBIconController : NSObject
-+ (SBIconController *)sharedInstance;
++ (instancetype)sharedInstance;
 - (BOOL)isEditing;
 - (BOOL)isShowingSearch;
 - (void)scrollToIconListAtIndex:(NSUInteger)index animate:(BOOL)animated;
@@ -17,7 +17,7 @@
 @end
 
 @interface SBSearchViewController : NSObject
-+ (SBSearchViewController *)sharedInstance;
++ (instancetype)sharedInstance;
 - (void)dismiss;
 @end
 

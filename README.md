@@ -3,4 +3,4 @@ Spotlight Flipswitch
 
 Enable/Disable Spotlight feature immediately.
 
-Requires iOS 4 or higher.
+Supports iOS 4 and higher.
